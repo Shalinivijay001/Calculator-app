@@ -3,23 +3,37 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   const [display, setDisplay] = useState("0");
+
   const buttons = [
     ["7", "8", "9", "/"],
     ["4", "5", "6", "*"],
     ["1", "2", "3", "-"],
     ["C", "0", "=", "+"],
   ];
+  //console.log("Calculator opened in android");
+
+  const operators = ["+", "-", "*", "/"];
 
   const handlepress = (value: string) => {
+    const lastChar = display[display.length - 1];
     if (value === "=") {
-      setDisplay(eval(display).toString());
+      try {
+        const result = eval(display).toString();
+        setDisplay(result);
+      } catch (error) {
+        setDisplay("Error");
+      }
     } else if (value === "C") {
       setDisplay("0");
     } else {
-      if (display === "0") {
+      if (display === "0" || display === "Error") {
         setDisplay(value);
       } else {
-        setDisplay(display + value);
+        if (operators.includes(lastChar) && operators.includes(value)) {
+          setDisplay(display.slice(0, -1) + value);
+        } else {
+          setDisplay(display + value);
+        }
       }
     }
   };
@@ -38,7 +52,13 @@ export default function HomeScreen() {
             {row.map((button, buttonIndex) => (
               <TouchableOpacity
                 key={buttonIndex}
-                style={styles.button}
+                style={[
+                  styles.button,
+                  ["+", "-", "*", "/", "="].includes(button) &&
+                    styles.operatorButton,
+
+                  button === "C" && styles.clearButton,
+                ]}
                 onPress={() => handlepress(button)}
               >
                 <Text style={styles.buttonText}>{button}</Text>
@@ -54,7 +74,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     justifyContent: "flex-end",
   },
 
@@ -63,8 +83,10 @@ const styles = StyleSheet.create({
   },
 
   displayText: {
-    fontSize: 60,
+    fontSize: 70,
     textAlign: "right",
+    color: "white",
+    fontWeight: "300",
   },
 
   buttonContainer: {
@@ -78,16 +100,25 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    width: 75,
-    height: 75,
+    width: 80,
+    height: 80,
     borderRadius: 40,
-    backgroundColor: "#ddd",
+    backgroundColor: "#333",
     justifyContent: "center",
     alignItems: "center",
   },
 
   buttonText: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "bold",
+    color: "white",
+  },
+
+  operatorButton: {
+    backgroundColor: "#ff9500",
+  },
+
+  clearButton: {
+    backgroundColor: "#a5a5a5",
   },
 });
